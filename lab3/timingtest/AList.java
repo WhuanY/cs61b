@@ -17,11 +17,13 @@ package timingtest;
 public class AList<Item> {
     private Item[] items;
     private int size;
+    //private int REFACTOR;
 
     /** Creates an empty list. */
     public AList() {
         items = (Item[]) new Object[100];
         size = 0;
+        // REFACTOR = 2;
     }
 
     /** Resizes the underlying array to the target capacity. */

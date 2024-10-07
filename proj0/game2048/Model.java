@@ -1,5 +1,6 @@
 package game2048;
 
+import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.Observable;
 
@@ -110,13 +111,116 @@ public class Model extends Observable {
         boolean changed;
         changed = false;
 
-        // TODO: Modify this.board (and perhaps this.score) to account
-        // for the tilt to the Side SIDE. If the board changed, set the
-        // changed local variable to true.
+        board.setViewingPerspective(side);
+        changed = isChanged(changed);//函数返回changed变量的真值
+        board.setViewingPerspective(Side.NORTH);
 
         checkGameOver();
         if (changed) {
             setChanged();
+        }
+        return changed;
+    }
+
+    private boolean isChanged(boolean changed) {
+        ArrayList<Integer>[] valids = new ArrayList[size()]; // 使用ArrayList数组来动态存储行数
+        // 初始化valids数组
+        for (int i = 0; i < valids.length; i++) {
+            valids[i] = new ArrayList<>();
+        }
+
+        //遍历board，如果(col,row)存在方块，则将row存入valids[col][]中
+        for(int col=0;col<board.size();col++){
+            for(int row= board.size()-1; row>=0;row--){
+                if(board.tile(col,row)!=null)valids[col].add(row);
+            }
+        }
+
+        //遍历每一列
+        for(int i = 0;i<size();i++){
+            //如果某一列均为空，跳过
+            if(valids[i].isEmpty()) continue;
+            //注意坐标表示，board左下角为(0,0)，右上角为(3,3)
+            if(valids[i].size()==1){
+                Tile t = board.tile(i,valids[i].get(0));
+                if(t.row()!=3) changed =true;
+                board.move(i, 3,t);
+            } else if (valids[i].size()==2) {
+                Tile t = board.tile(i,valids[i].get(0));
+                Tile tile1 = board.tile(i,valids[i].get(1));
+                if(t.row()!=3) changed =true;
+                board.move(i, 3,t);
+                if(tile1.value()==t.value()) {
+                    changed =true;
+                    board.move(i,3,tile1);
+                    score+=board.tile(i,3).value();
+                }
+                else {
+                    if(tile1.row()!=2) changed =true;
+                    board.move(i,2,tile1);
+                }
+            } else if (valids[i].size()==3) {
+                Tile t = board.tile(i,valids[i].get(0));
+                if(t.row()!=3) changed =true;
+                board.move(i, 3,t);
+                Tile tile1 = board.tile(i,valids[i].get(1));
+                Tile tile2 = board.tile(i,valids[i].get(2));
+                if(tile1.value()==t.value()){
+                    changed =true;
+                    board.move(i,3,tile1);
+                    score+=board.tile(i,3).value();
+                    board.move(i, 2,tile2);
+                }else {
+                    if(tile1.row()!=2) changed =true;
+                    board.move(i,2,tile1);
+                    if(tile2.value()==tile1.value()){
+                        changed =true;
+                        board.move(i,2, tile2);
+                        score+=board.tile(i,2).value();
+                    }
+                    else {
+                        if(tile2.row()!=1) changed =true;
+                        board.move(i,1,tile2);
+                    }
+                }
+            } else if (valids[i].size()==4) {
+                Tile t = board.tile(i,valids[i].get(0));
+                if(t.row()!=3) changed =true;
+                board.move(i, 3,t);
+                Tile tile1 = board.tile(i,valids[i].get(1));
+                Tile tile2 = board.tile(i,valids[i].get(2));
+                Tile tile3 = board.tile(i,valids[i].get(3));
+                if(tile1.value()==t.value()){
+                    changed =true;
+                    board.move(i,3,tile1);
+                    score+=board.tile(i,3).value();
+                    board.move(i, 2,tile2);
+                    if(tile2.value()==tile3.value()){
+                        board.move(i, 2, tile3);
+                        score+=board.tile(i,2).value();
+                    }else {
+                        board.move(i,1,tile3);
+                    }
+                }else{
+                    if(tile1.row()!=2) changed =true;
+                    board.move(i,2,tile1);
+                    if(tile1.value()==tile2.value()){
+                        changed =true;
+                        board.move(i,2,tile2);
+                        score+= board.tile(i,2).value();
+                        board.move(i,1,tile3);
+                    }
+                    else{
+                        if(tile2.row()!=1) changed =true;
+                        board.move(i,1,tile2);
+                        if(tile2.value()==tile3.value()){
+                            changed =true;
+                            board.move(i,1,tile3);
+                            score+=board.tile(i,1).value();
+                        }
+                    }
+                }
+            }
         }
         return changed;
     }
@@ -137,7 +241,6 @@ public class Model extends Observable {
      *  Empty spaces are stored as null.
      * */
     public static boolean emptySpaceExists(Board b) {
-        // TODO: Fill in this function.
         for (int i = 0; i < b.size(); i++) {
             for (int j = 0; j < b.size(); j++) {
                 if (b.tile(i, j) == null) {
@@ -154,7 +257,6 @@ public class Model extends Observable {
      * given a Tile object t, we get its value with t.value().
      */
     public static boolean maxTileExists(Board b) {
-        // TODO: Fill in this function.
         for (int i = 0; i < b.size(); i++) {
             for (int j = 0; j < b.size(); j++) {
                 if (b.tile(i, j) == null) {
@@ -175,7 +277,40 @@ public class Model extends Observable {
      * 2. There are two adjacent tiles with the same value.
      */
     public static boolean atLeastOneMoveExists(Board b) {
-        // TODO: Fill in this function.
+        if (emptySpaceExists(b)) {
+            return true;
+        }
+        if (havaAjacentNumberAtRow(b) || haveAjacentNumberAtColumn(b)) {
+            return true;
+        }
+        return false;
+    }
+    private static boolean havaAjacentNumberAtRow(Board b) {
+        for (int row = 0; row < b.size(); row++) {
+            int temp = b.tile(0, row).value();
+            for (int col = 1; col < b.size(); col++) {
+                if (b.tile(col,row).value() == temp) {
+                    return true;
+                }
+                else {
+                    temp = b.tile(row, col).value();
+                }
+            }
+        }
+        return false;
+    }
+    private static boolean haveAjacentNumberAtColumn(Board b) {
+        for (int col = 0; col < b.size(); col++) {
+            int temp = b.tile(0, col).value();
+            for (int row = 1; row < b.size(); row++) {
+                if (b.tile(col, row).value() == temp) {
+                    return true;
+                }
+                else {
+                    temp = b.tile(col, row).value();
+                }
+            }
+        }
         return false;
     }
 
