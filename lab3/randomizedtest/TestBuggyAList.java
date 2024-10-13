@@ -33,7 +33,6 @@ public class TestBuggyAList {
                 if ((L.size() > 0) && (BuggyL.size() > 0)) {
                     Assert.assertEquals( L.getLast(), BuggyL.getLast());
                 }
-
             }
             else if (operationNumber == 3) {
                 // remove last
