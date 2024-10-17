@@ -5,14 +5,11 @@ import java.io.Serializable;
 import static capers.Utils.*;
 
 /** Represents a dog that can be serialized.
- * @author TODO
+ * @author Walter
 */
-public class Dog implements Serializable { // TODO
-
+public class Dog implements Serializable {
     /** Folder that dogs live in. */
-    static final File DOG_FOLDER = null; // TODO (hint: look at the `join`
-                                         //      function in Utils)
-
+    static final File DOG_FOLDER = Utils.join(CapersRepository.CAPERS_FOLDER,"dogs");
     /** Age of dog. */
     private int age;
     /** Breed of dog. */
@@ -39,8 +36,10 @@ public class Dog implements Serializable { // TODO
      * @return Dog read from file
      */
     public static Dog fromFile(String name) {
-        // TODO (hint: look at the Utils file)
-        return null;
+        File inFile = Utils.join(DOG_FOLDER, name);
+        Dog retDog;
+        retDog = readObject(inFile,Dog.class);
+        return retDog;
     }
 
     /**
@@ -56,7 +55,11 @@ public class Dog implements Serializable { // TODO
      * Saves a dog to a file for future use.
      */
     public void saveDog() {
-        // TODO (hint: don't forget dog names are unique)
+        File outFile = Utils.join(DOG_FOLDER,this.name);
+        if (outFile.exists()) {
+            // Should overwrite
+            writeObject(outFile, this);
+        }
     }
 
     @Override

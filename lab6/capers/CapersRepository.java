@@ -95,5 +95,6 @@ public class CapersRepository {
         }
         Dog birthdayDog  = readObject(inFile, Dog.class);
         birthdayDog.haveBirthday();
+        writeObject(inFile, birthdayDog);
     }
 }
