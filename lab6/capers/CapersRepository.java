@@ -57,12 +57,17 @@ public class CapersRepository {
      * to a file called `story` in the .capers directory.
      * @param text String of the text to be appended to the story
      */
-    public static void writeStory(String text) throws IOException {
+    public static void writeStory(String text) {
         File storyFile = Utils.join(CAPERS_FOLDER, "story");
-        if (!storyFile.exists()) {
-            System.out.println("story files not found, check if you have benn set all things up yet");
+        String StoryContent;
+        if (readContentsAsString(storyFile).compareTo("") == 0){
+            StoryContent = text;
         }
-        Utils.writeContents(storyFile, text);
+        else {
+            StoryContent = readContentsAsString(storyFile) + "\n" + text;
+        }
+        Utils.writeContents(storyFile, StoryContent);
+        System.out.println(readContentsAsString(storyFile));
     }
 
     /**
