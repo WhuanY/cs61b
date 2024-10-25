@@ -1,5 +1,7 @@
 package bstmap;
 
+import afu.org.checkerframework.checker.oigj.qual.O;
+
 import java.util.Set;
 
 /* Your implementation BSTMap should implement this interface. To do so,
@@ -8,6 +10,7 @@ import java.util.Set;
  */
 public interface Map61B<K, V> extends Iterable<K> {
 
+    int size = 0;
     /** Removes all of the mappings from this map. */
     void clear();
 
